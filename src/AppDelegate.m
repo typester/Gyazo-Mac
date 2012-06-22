@@ -74,6 +74,7 @@
 -(void)finishedTask:(NSNotification*)n {
     if (![[NSFileManager defaultManager] fileExistsAtPath:self.imagePath]) {
         NSLog(@"capture image not found");
+        [[NSApplication sharedApplication] terminate:self];
         return;
     }
 
@@ -100,6 +101,7 @@
     self.req = nil;
 
     [[NSFileManager defaultManager] removeItemAtPath:self.imagePath error:nil];
+    [[NSApplication sharedApplication] terminate:self];
 }
 
 -(void)requestFailed:(ASIHTTPRequest*)request {
@@ -109,6 +111,7 @@
     self.req = nil;
 
     [[NSFileManager defaultManager] removeItemAtPath:self.imagePath error:nil];
+    [[NSApplication sharedApplication] terminate:self];
 }
 
 @end
