@@ -41,7 +41,8 @@
 
     [[NSFileManager defaultManager] removeItemAtPath:tmpFile error:nil];
 
-    [NSTask launchedTaskWithLaunchPath:@"/usr/sbin/screencapture" arguments:[NSArray arrayWithObjects:@"-i", tmpFile, nil]];
+    NSString *command = [NSString stringWithFormat:@"f=%@\n/usr/sbin/screencapture -i $f 2>/dev/null\n/usr/bin/sips -g dpiWidth -g dpiHeight -g pixelWidth -g pixelHeight $f | /usr/bin/awk -v imagefile=$f '$1==\"dpiWidth:\" {dpiWidth = $2}\n$1==\"dpiHeight:\" {dpiHeight = $2}\n$1==\"pixelWidth:\" {pixelWidth = $2}\n$1==\"pixelHeight:\" {pixelHeight = $2}\nEND {\n  if (dpiWidth != 72 || dpiHeight != 72) {\n    w = int(pixelWidth * 72 / dpiWidth)\n    h = int(pixelHeight * 72 / dpiHeight)\n    cmd = sprintf(\"/usr/bin/sips %%s -s dpiWidth 72 -s dpiHeight 72 -z %%d %%d >/dev/null 2>&1\", imagefile, h, w)\n    system(cmd)\n  }\n}'", tmpFile];
+    [NSTask launchedTaskWithLaunchPath:@"/bin/sh" arguments:[NSArray arrayWithObjects:@"-c", command, nil]];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(finishedTask:)
                                                  name:NSTaskDidTerminateNotification
